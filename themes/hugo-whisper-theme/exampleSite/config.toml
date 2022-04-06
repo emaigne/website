@@ -49,5 +49,5 @@ summaryLength = 30
     meta_twitter_creator = "@zerostaticio"
 
   [params.logo]
-      mobile = "/images/logo-mobile.svg"
-      standard  = "/images/logo.svg"
+      mobile = "/images/inrae_logo.png"
+      standard  = "/images/inrae_logo.png"

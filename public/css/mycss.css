@@ -1,0 +1,20 @@
+.content pre {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+  padding: 10px;
+  border-radius: 1px;
+  background: darkcyan;
+}
+
+.content pre code {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border-radius: none;
+  padding: 0;
+  margin: 0;
+  background: #cad9bc;
+}
+

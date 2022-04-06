@@ -2,29 +2,65 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/</loc>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/cours/</loc>
     <lastmod>2018-11-28T15:14:39+10:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/install-hugo/</loc>
-    <lastmod>2019-02-11T19:27:37+10:00</lastmod>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/codes/</loc>
+    <lastmod>2018-11-28T15:14:39+10:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/install-theme/</loc>
-    <lastmod>2019-02-11T19:27:37+10:00</lastmod>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/codes/benchmark/</loc>
+    <lastmod>2022-04-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/configure/</loc>
-    <lastmod>2019-02-11T19:30:08+10:00</lastmod>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/</loc>
+    <lastmod>2022-04-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/specimen/</loc>
-    <lastmod>2019-02-11T19:27:37+10:00</lastmod>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/codes/</loc>
+    <lastmod>2022-04-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/docs/example/</loc>
-    <lastmod>2019-02-11T19:27:37+10:00</lastmod>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/codes/</loc>
+    <lastmod>2022-04-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/</loc>
+    <lastmod>2022-04-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/cours/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/cours/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/cours/2022-03-29-data-table/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/formation/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/formation/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/cours/2022-03-29-formations-r-shiny/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/cours/2022-03-29-package-renv/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/package/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/presentation/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/presentation/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/r/</loc>
+    <lastmod>2022-03-29T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/</loc>
     <lastmod>2018-11-28T15:14:39+10:00</lastmod>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/categories/</loc>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/codes/dependencies/</loc>
   </url><url>
-    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/tags/</loc>
+    <loc>https://elisemaigne.pages.mia.inra.fr/rjourney2/codes/leaflet/carteleaflet/</loc>
   </url>
 </urlset>

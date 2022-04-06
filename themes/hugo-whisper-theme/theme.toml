@@ -7,7 +7,7 @@ homepage = "https://github.com/zerostatic/hugo-whisper-theme"
 demosite = "https://hugo-whisper.netlify.app"
 
 tags = ["docs","responsive","minimal","clean","bootstrap","zerostatic"]
-features = ["docs","bootstrap","scss","netlify","google analytics"]
+features = ["docs","bootstrap","scss", "css","netlify","google analytics"]
 
 [author]
   name = "Robert Austin"

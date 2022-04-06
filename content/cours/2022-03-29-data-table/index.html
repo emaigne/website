@@ -1,0 +1,245 @@
+---
+title: data.table mon amour
+author: Elise Maigné
+date: '2022-03-29'
+slug: []
+categories:
+  - cours
+tags:
+  - R
+  - package
+  - cours
+summary: 'Petite introduction au package data.table'
+topics: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<pre class="r"><code>library(data.table)</code></pre>
+<p>Je présente ici mon utilisation du package <code>data.table</code> que j’utilise depuis des années sous forme d’une rapide introduction pour s’y mettre.</p>
+<p>Depuis que j’ai commencé à l’utilisé pour pouvoir travailler sur un énorme fichier de données,
+je ne peux plus m’en passer, il est dans tous mes projets !</p>
+<p><strong>Les avantages que j’y trouve :</strong></p>
+<ul>
+<li>très rapide</li>
+<li>particulièrement rapide pour les <code>merge</code></li>
+<li>très rapide en lecture/écriture de fichiers</li>
+<li>moins verbeux que le R base</li>
+<li>pratique pour travailler en groupes de valeurs</li>
+<li>moins couteux en mémoire</li>
+<li>est-ce que j’ai dit rapide ?</li>
+</ul>
+<p><strong>Des inconvénients :</strong></p>
+<ul>
+<li>pas vraiment tidyverse friendly</li>
+<li>il y a un coût d’apprentissage de la syntaxe</li>
+<li>travailler avec data.table sans connaitre sa fonction <code>copy()</code> est source d’erreurs, je l’ai appris à mes dépends !</li>
+</ul>
+<div id="usage-de-base" class="section level2">
+<h2>Usage de base</h2>
+<div id="conversion-en-data.table" class="section level3">
+<h3>Conversion en data.table</h3>
+<p>Convertir un data.frame en data.table est fait classiquement avec la fonction <code>as.data.table()</code>.</p>
+<p>Mais <code>data.table</code> fournit la fonction <code>setDT()</code> moins gourmande en ressources (utile pour les gros datasets) puisqu’il n’oblige pas à copier l’objet en mémoire, contrairement au traditionnel <code>&lt;-</code>.</p>
+<pre class="r"><code>data(iris)
+setDT(iris)
+class(iris)</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<p>On peut voir ici qu’un objet <code>data.table</code> est aussi dans la classe <code>data.frame</code>, ce qui veut dire que le base R s’applique sans problème à un objet data.table. Pas besoin de recoder toutes ses fonctions et ses programmes, bon point !</p>
+</div>
+<div id="fonction-copy-allocation-mémoire" class="section level3">
+<h3>Fonction copy (allocation mémoire)</h3>
+<p>Puisqu’on parle de l’allocation mémoire, il faut savoir que <code>data.table</code> utilise le concept de pointeurs (comme en C).
+Le nom de l’objet utilisé dans R n’est en fait qu’un pointeur vers l’objet en mémoire.</p>
+<p>Concrètement ça veut dire que si on copie un objet DF, qui est un <code>data.table</code>, dans DF2 en utilisant la façon traditionnelle de R <code>&lt;-</code>, DF et DF2 pointeront tous les deux vers le même objet. Si on modifie DF2 (ou DF, ça marche dans les deux sens), ça modifiera aussi DF :</p>
+<pre class="r"><code>DF &lt;- as.data.table(iris)
+DF2 &lt;- DF
+DF2[, Sepal.Length := 0]
+head(DF, 3)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1:            0         3.5          1.4         0.2  setosa
+## 2:            0         3.0          1.4         0.2  setosa
+## 3:            0         3.2          1.3         0.2  setosa</code></pre>
+<p>Si on ne sait pas ça ça peut vraiment créer des problèmes sans qu’on s’en rende compte.</p>
+<p>Pour créer un “vrai” nouvel objet en mémoire, on peut utiliser la fonction <code>copy()</code> :</p>
+<pre class="r"><code>DF &lt;- as.data.table(iris)
+DF2 &lt;- copy(DF)
+DF2[, Sepal.Length := 0]
+head(DF2, 3)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1:            0         3.5          1.4         0.2  setosa
+## 2:            0         3.0          1.4         0.2  setosa
+## 3:            0         3.2          1.3         0.2  setosa</code></pre>
+<pre class="r"><code>head(DF, 3)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1:          5.1         3.5          1.4         0.2  setosa
+## 2:          4.9         3.0          1.4         0.2  setosa
+## 3:          4.7         3.2          1.3         0.2  setosa</code></pre>
+<p>DF n’a pas été modifié.</p>
+<p>C’est simple mais il faut le savoir.</p>
+</div>
+<div id="lectureécriture-de-fichiers" class="section level3">
+<h3>Lecture/écriture de fichiers</h3>
+<p><code>data.table</code> fournit les fonctions <strong><code>fread</code></strong> et <strong><code>fwrite</code></strong> :</p>
+<pre class="r"><code>fwrite(iris, file=&quot;irisblank.csv&quot;)
+datatest &lt;- fread(&quot;irisblank.csv&quot;)</code></pre>
+<p>La fonction <em><code>fread</code></em> vient avec les options habituelles (<code>sep</code>, <code>nrows</code>, …) mais très souvent trouve toute seule la bonne combinaison. C’est rare que j’ai besoin de les spécifier… Très pratique !</p>
+<p>La magie en action :</p>
+<pre class="r"><code>data(iris)
+fwrite(iris, file=&quot;irisblank.csv&quot;, sep=&quot; &quot;)
+fwrite(iris, file=&quot;iriscomma.csv&quot;, sep=&quot;,&quot;)
+irisblank &lt;- fread(&quot;irisblank.csv&quot;)
+iriscomma &lt;- fread(&quot;iriscomma.csv&quot;)
+identical(irisblank, iriscomma)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Deux options utiles dont je me sert pour des très gros jeux de données sont les options <code>select</code> et <code>drop</code>
+pour présélectionner des colonnes au moment de la lecture du fichier, ce qui rend le fichier plus léger dès la lecture.</p>
+<p>Les fonctions <code>fread()</code> et <code>fwrite()</code> sont très rapides, notamment avec de gros jeux de données là où R sera lent, voire ne marchera pas du tout (out of memory), data.table est la (ma) solution !</p>
+</div>
+<div id="sytaxe-sélection-de-lignes-et-colonnes" class="section level3">
+<h3>Sytaxe (sélection de lignes et colonnes)</h3>
+<p>Le classique <code>object[rows, columns]</code> s’applique toujours, mais en moins verbeux, en évitant le <code>object$</code> dans les sélections, ainsi que les guillemets :</p>
+<pre class="r"><code>nrow(irisblank[Sepal.Length&gt;6, ]) # Virgule optionnelle ici</code></pre>
+<pre><code>## [1] 61</code></pre>
+<pre class="r"><code>head(irisblank[, .(Sepal.Length, Sepal.Width)], 3) # Mais pas ici !</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width
+## 1:          5.1         3.5
+## 2:          4.9         3.0
+## 3:          4.7         3.2</code></pre>
+<p>J’ai trouvé la syntaxe <code>.()</code> de la sélection de variables un peu dure à intégrer dans mes réflexes au départ mais on s’y fait vite.
+Mais c’est largement compensé par la suppression des <code>object$</code> ou des guillemets.</p>
+<p>La suppression des guillemets permet notamment l’auto complétion, encore un bon point !</p>
+</div>
+<div id="syntaxe-création-de-variables" class="section level3">
+<h3>Syntaxe : création de variables</h3>
+<p>Pour créer une nouvelle variable dans un objet <code>data.table</code>, on utilise les symboles <code>:=</code> avec la syntaxe suivante :</p>
+<pre class="r"><code>irisblank[, newvar := 2*Sepal.Length]</code></pre>
+<p>Et voilà ! La syntaxe est aussi moins verbeuse que du R base …</p>
+<p>A noter que pour des syntaxes très complexes dans des créations de variables, au début j’ai parfois du mal à écrire en data.table ce que je voulais… Heureusement la syntaxe R basepour les data.frame s’applique sans problème, ça a un côté bien rassurant !</p>
+<p>Et voilà, déjà avec ces quelques éléments on peut démarrer avec <code>data.table</code> tranquillement.</p>
+</div>
+</div>
+<div id="utilisation-spécifique-à-data.table" class="section level2">
+<h2>Utilisation spécifique à data.table</h2>
+<p>en plus du gros avantage de la rapidité, <code>data.table</code> vient avec quelques nouveautés par rapport à data.frame qui permettent une manipulation de données très aisée :</p>
+<div id="syntaxe-by" class="section level3">
+<h3>Syntaxe : by</h3>
+<p>En plus de la syntaxe <code>object[rows, columns]</code>, data.table a une troisième dimension : <code>object[rows, columns, by]</code> pour faire des calculs groupés :</p>
+<pre class="r"><code>irisblank[, MeanSepLength_species := mean(Sepal.Length), by= .(Species)]
+head(irisblank,3)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species newvar
+## 1:          5.1         3.5          1.4         0.2  setosa   10.2
+## 2:          4.9         3.0          1.4         0.2  setosa    9.8
+## 3:          4.7         3.2          1.3         0.2  setosa    9.4
+##    MeanSepLength_species
+## 1:                 5.006
+## 2:                 5.006
+## 3:                 5.006</code></pre>
+<p>Avec la syntaxe <code>:=</code> on a rajouté la variable <code>MeanSepLength_species</code>, moyenne de <code>Sepal.Length</code> par valeur de <code>Species</code>.</p>
+<p>Le <code>.()</code> dans le by est optionnel si on n’a qu’une variable mais j’ai préféré prendre l’habitude de l’écrire pour garder une constance.</p>
+<p>On peut noter aussi que la syntaxe suivante marche :</p>
+<pre class="r"><code>bycol &lt;- &quot;Species&quot;
+irisblank[, MeanSepLength_species := mean(Sepal.Length), by=bycol]</code></pre>
+<p>Ce qui permet d’envoyer une variable (character vector) dans le by.</p>
+<p>On aurait pu aussi ne pas rajouter la variable dans l’objet lui même mais créer un vecteur sans redondance avec la fonction de sélection <code>.()</code> directement au moment du calcul :</p>
+<pre class="r"><code>irisblank[, .(MeanSepLength_species = mean(Sepal.Length)), by = .(Species)]</code></pre>
+<pre><code>##       Species MeanSepLength_species
+## 1:     setosa                 5.006
+## 2: versicolor                 5.936
+## 3:  virginica                 6.588</code></pre>
+<p>La subtilité ici est sur le <code>=</code>, on n’utilise le <code>:=</code> que pour créer une (ou plusieurs) nouvelle variable dans l’objet.</p>
+</div>
+<div id="création-de-plusieurs-variables-à-la-fois" class="section level3">
+<h3>Création de plusieurs variables à la fois</h3>
+<p>Pour créer par exemple un jeu de données des moyennes des variable par <code>Species</code>, on peut procéder de la façon suivante :</p>
+<pre class="r"><code>stat_seplength &lt;- irisblank[, .(MeanSepLength_species = mean(Sepal.Length),
+                                SdSepLength_species = sd(Sepal.Length)), by=.(Espece = Species)]</code></pre>
+<p>A noter le renommage de la variable <code>Species</code> au même moment, très pratique.</p>
+<p>On aurait pu créer ces variables directement dans le jeu de données. Pour ça on remplace la fonction <code>.()</code> par la fonction `<code></code>:=<code>()</code> `:</p>
+<pre class="r"><code>irisblank[, `:=`(MeanSepLength_species = mean(Sepal.Length),
+                 SdSepLength_species = sd(Sepal.Length)), by=.(Species)]
+head(irisblank,3)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species newvar
+## 1:          5.1         3.5          1.4         0.2  setosa   10.2
+## 2:          4.9         3.0          1.4         0.2  setosa    9.8
+## 3:          4.7         3.2          1.3         0.2  setosa    9.4
+##    MeanSepLength_species SdSepLength_species
+## 1:                 5.006           0.3524897
+## 2:                 5.006           0.3524897
+## 3:                 5.006           0.3524897</code></pre>
+</div>
+<div id="autre-tips" class="section level3">
+<h3>Autre “tips”</h3>
+<div id="enchainement-dopérations" class="section level4">
+<h4>Enchainement d’opérations :</h4>
+<p>Il est possible d’enchainer les opérations avec une succession de crochets :</p>
+<pre class="r"><code>irisblank[, MeanSepLength_species := mean(Sepal.Length), by = .(Species)][, .(MyDoubleMean = 2*MeanSepLength_species)]</code></pre>
+<pre><code>##      MyDoubleMean
+##   1:       10.012
+##   2:       10.012
+##   3:       10.012
+##   4:       10.012
+##   5:       10.012
+##  ---             
+## 146:       13.176
+## 147:       13.176
+## 148:       13.176
+## 149:       13.176
+## 150:       13.176</code></pre>
+</div>
+<div id="variable-.n" class="section level4">
+<h4>Variable .N</h4>
+<p><code>data.table</code> vient avec la variable <code>.N</code> qui contient le nombre d’observations. Voyons la en action :</p>
+<pre class="r"><code>irisblank[, .(nbobs_species = .N), by = .(Species)]</code></pre>
+<pre><code>##       Species nbobs_species
+## 1:     setosa            50
+## 2: versicolor            50
+## 3:  virginica            50</code></pre>
+<p>Pratique pour l’intégrer dans des calculs :</p>
+<pre class="r"><code>irisblank[, numobs_species := 1:.N, by=.(Species)]
+head(irisblank[,.(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, Species, numobs_species)])</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species numobs_species
+## 1:          5.1         3.5          1.4         0.2  setosa              1
+## 2:          4.9         3.0          1.4         0.2  setosa              2
+## 3:          4.7         3.2          1.3         0.2  setosa              3
+## 4:          4.6         3.1          1.5         0.2  setosa              4
+## 5:          5.0         3.6          1.4         0.2  setosa              5
+## 6:          5.4         3.9          1.7         0.4  setosa              6</code></pre>
+</div>
+<div id="et-bien-dautres" class="section level4">
+<h4>Et bien d’autres !</h4>
+<p>Les fonctions bien nommées <code>setnames()</code>, <code>setorder()</code>, <code>setcolorder()</code>…</p>
+<p>La suppression de variable :</p>
+<pre class="r"><code>irisblank[, numobs_species := NULL]</code></pre>
+<p><code>.SD</code> est une variable qui retourne le nom des colonnes.</p>
+<pre class="r"><code>irisblank[, lapply(.SD, sum), by = &quot;Species&quot;]</code></pre>
+<pre><code>##       Species Sepal.Length Sepal.Width Petal.Length Petal.Width newvar
+## 1:     setosa        250.3       171.4         73.1        12.3  500.6
+## 2: versicolor        296.8       138.5        213.0        66.3  593.6
+## 3:  virginica        329.4       148.7        277.6       101.3  658.8
+##    MeanSepLength_species SdSepLength_species
+## 1:                 250.3            17.62448
+## 2:                 296.8            25.80856
+## 3:                 329.4            31.79398</code></pre>
+<pre class="r"><code>irisblank[, lapply(.SD, sum), by = &quot;Species&quot;, .SDcols = -&quot;newvar&quot;]</code></pre>
+<pre><code>##       Species Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1:     setosa        250.3       171.4         73.1        12.3
+## 2: versicolor        296.8       138.5        213.0        66.3
+## 3:  virginica        329.4       148.7        277.6       101.3
+##    MeanSepLength_species SdSepLength_species
+## 1:                 250.3            17.62448
+## 2:                 296.8            25.80856
+## 3:                 329.4            31.79398</code></pre>
+</div>
+</div>
+</div>
+<div id="pour-aller-plus-loin" class="section level2">
+<h2>Pour aller plus loin</h2>
+<p><a href="https://github.com/Rdatatable/data.table" class="uri">https://github.com/Rdatatable/data.table</a></p>
+<p>The cheat sheet : <a href="https://raw.githubusercontent.com/rstudio/cheatsheets/master/datatable.pdf" class="uri">https://raw.githubusercontent.com/rstudio/cheatsheets/master/datatable.pdf</a></p>
+<pre class="r"><code>file.remove(&quot;irisblank.csv&quot;)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>file.remove(&quot;iriscomma.csv&quot;)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+</div>

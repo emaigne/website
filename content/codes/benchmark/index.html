@@ -1,0 +1,63 @@
+---
+title: benchmark
+author: Elise Maigné
+date: '2022-04-01'
+slug: []
+categories:
+  - codes
+tags:
+  - codes
+draft: false
+summary: Comparer la vitesse de morceaux de codes
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Pour comparer la vitesse de 2 bouts de codes (ou plus que 2), on utilise le package rbenchmark.</p>
+<p>La structure générale est la suivante :</p>
+<pre class="r"><code>library(rbenchmark)
+
+benchmark(replications=100,
+          code1,
+          code2,
+          columns=c(&#39;test&#39;, &#39;elapsed&#39;, &#39;replications&#39;))</code></pre>
+<p>Et avec un exemple :</p>
+<pre class="r"><code>library(rbenchmark)
+library(data.table)
+
+# Ecriture d&#39;un fichier de 15000 lignes 
+data(iris)
+iris &lt;- iris[rep(rownames(iris), each=100),]
+fwrite(iris, file=&quot;irisbig.csv&quot;, sep=&quot;,&quot;)
+
+# Lecture du fichier, répétée 1000 fois. 
+benchmark(replications=1000,
+          read.csv(&quot;irisbig.csv&quot;, sep=&quot;,&quot;),
+          fread(&quot;irisbig.csv&quot;),
+          columns=c(&#39;test&#39;, &#39;elapsed&#39;, &#39;replications&#39;))</code></pre>
+<pre><code>##                                 test elapsed replications
+## 2               fread(&quot;irisbig.csv&quot;)   2.173         1000
+## 1 read.csv(&quot;irisbig.csv&quot;, sep = &quot;,&quot;)  15.748         1000</code></pre>
+<p>Le test2, utilisant la fonction <code>fread</code> du package <code>data.table</code> est bien plus rapide.</p>
+<p>De la même manière on peut utiliser le package microbenchmark qui a l’avantage d’avoir une belle visualisation avec ggplot2 :</p>
+<pre class="r"><code>library(microbenchmark)
+library(ggplot2)
+
+# Lecture du fichier, répétée 1000 fois. 
+mb &lt;- microbenchmark(
+          read.csv(&quot;irisbig.csv&quot;, sep=&quot;,&quot;),
+          fread(&quot;irisbig.csv&quot;),
+          times=1000)
+
+mb</code></pre>
+<pre><code>## Unit: milliseconds
+##                                expr       min        lq      mean    median
+##  read.csv(&quot;irisbig.csv&quot;, sep = &quot;,&quot;) 13.921622 15.007200 16.186397 15.414265
+##                fread(&quot;irisbig.csv&quot;)  1.677461  1.872444  2.064792  1.989508
+##         uq       max neval cld
+##  15.990818 81.169196  1000   b
+##   2.117605  5.300532  1000  a</code></pre>
+<pre class="r"><code>autoplot(mb)</code></pre>
+<pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>

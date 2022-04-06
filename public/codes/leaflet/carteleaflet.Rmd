@@ -1,0 +1,101 @@
+---
+title: "Faire une carte avec leaflet"
+author: "Elise Maigné"
+date: "21/07/2020"
+slug: []
+categories:
+  - codes
+tags:
+  - codes
+draft: false
+summary: Code reproductible pour faire une carte avec le package `leaflet`
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Chargement/préparation données
+
+Pour faire une carte (ici des polygones), il faut des données, et un fond de carte correspondant.
+
+On va prendre pour l'exemple le résultats au second tour des élections municipales 2020 à Toulouse, par bureau de vote. 
+
+On charge le résultat des élections :
+
+```{r}
+votes <- read.csv("https://data.toulouse-metropole.fr/explore/dataset/elections-municipales-et-communautaires-2020-2eme-tour-toulouse-resultats/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";", stringsAsFactors = F)
+colnames(votes)
+
+votes$Pct_abstention <- votes$Abstentions/votes$Inscrits
+votes <- votes[,c("Numéro.bdv", "Pct_abstention")]
+is.character(votes$Numéro.bdv)
+```
+Je ne garde que les colonnes qui m'intéressent : le numéro de bureau de vote pour faire le lien avec le fond de carte, et le pourcentage d'abstention. 
+Je m'assure que le numéro de bureau de vote est du character (pour pouvoir fusionner avec le découpage des bureaux de vote, j'ai besoin qu'ils soient au même format).
+
+La colonne qui va nous intéresser est la colonne "Numéro.bdv
+On charge le fond de carte (découpage) des bureaux de vote :
+
+```{r}
+library(geojsonio)
+library(curl)
+
+tmp <- tempfile()
+tmp <- paste0(tmp, ".geojson")
+curl_download("https://data.toulouse-metropole.fr/explore/dataset/elections-2020-decoupage-bureaux-de-vote-toulouse/download/?format=geojson&timezone=Europe/Berlin&lang=fr", tmp)
+bureaux <- geojson_read(tmp, what = "sp")
+
+head(bureaux@data, 4)
+```
+Ici j'ai préféré convertir le geojson téléchargé en `SpatialPolygonDataFrame` pour pouvoir manipuler facilement les données associées au fond de carte, mais c'est plus lourd en mémoire que le geojson, notamment au moment de la représentation. 
+
+
+La colonne qui nous intéresse pour faire la jointure est `bv2020`. On s'assure qu'elle est bien en character, et on rappatrie le pourcentage d'abstention dans les données du fond de carte. 
+
+```{r}
+is.character(bureaux@data$bv2020)
+bureaux@data <- merge(bureaux@data, votes, by.x="bv2020", by.y="Numéro.bdv", all=T, sort=F)
+```
+**Attention dans le merge ci-dessus, le `sort=F` est primordial** pour ne pas retrier les données avec la colonne `bv2020` lors du merge. 
+Si le tri est fait, les objects `bureaux@data` et `bureaux@polygons` ne seront pas triès de la même façon, et ne correspondront donc pas, on aura les bons polygones mais pas les bonnes données dessus. 
+
+# Carte
+
+On peut maintenant faire la carte :
+
+```{r}
+library(leaflet)
+
+# Création des labels quand on passera la souris sur la carte :
+labels <- sprintf(
+  "<strong>%s</strong>, BDV %s<br/> Abstention %s<br/>",
+  bureaux$nom, bureaux$bv2020, paste(round(100*bureaux$Pct_abstention,2),"%")
+) %>% lapply(htmltools::HTML)
+bureaux@data$labelsmap <- labels
+
+# Pour la palette de couleurs
+binsmap <- c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, Inf)
+pal <- colorBin(colorRamp(c("#006633", "#FFFFFF", "#660000")), domain = c(0,1), bins = binsmap)
+
+m <- leaflet(bureaux) %>%
+  addTiles() %>% 
+  addPolygons(fillColor = ~pal(Pct_abstention), 
+              color="black", 
+              weight = 0.5, 
+              opacity = 1, 
+              fillOpacity=0.9,
+              highlight = highlightOptions(weight = 4,
+                                           fillOpacity = 1,
+                                           bringToFront = TRUE),
+              label = bureaux$labelsmap,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "12px",
+                direction = "auto"))
+m
+```
