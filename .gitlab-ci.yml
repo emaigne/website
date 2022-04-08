@@ -1,5 +1,4 @@
 pages:
-  stage: creation
   image: rocker/verse:4.1.0
   script:
     - R -e "rmarkdown::render_site(encoding = 'UTF-8')"
@@ -7,4 +6,4 @@ pages:
     paths:
       - public
   only:
-    - main
+    - master
