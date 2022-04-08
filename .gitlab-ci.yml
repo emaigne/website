@@ -1,5 +1,8 @@
 pages:
   image: rocker/verse:4.1.0
+  before_script:
+  - R -e "install.packages(c('blogdown'),repos='http://cran.rstudio.com')"
+  - R -e "blogdown::install_hugo("0.96.0")"
   script:
     - R -e "rmarkdown::render_site(encoding = 'UTF-8')"
   artifacts:
